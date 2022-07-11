@@ -1,5 +1,3 @@
-#include <windows.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -10,13 +8,14 @@
 
 #define ARRAY_SIZE(arr) sizeof(arr) / sizeof(arr[0])
 
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
+#ifdef _WIN32
+    #include <windows.h>
+#else
+    #define ANSI_COLOR_RED     "\x1b[31m"
+    #define ANSI_COLOR_GREEN   "\x1b[32m"
+    #define ANSI_COLOR_YELLOW  "\x1b[33m"
+    #define ANSI_COLOR_RESET   "\x1b[0m"
+#endif
 
 typedef struct Stats {
     double wpm;
@@ -39,11 +38,22 @@ char take_input() {
 }
 
 Stats game_loop() {
+    #ifdef _WIN32
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+        WORD saved_attributes;
+
+        /* Save current attributes */
+        GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+        saved_attributes = consoleInfo.wAttributes;
+    #endif
+
     bool flag = false;
     clock_t start = clock();
 
     Stats current_stats = {
-        0.0, 100.0
+        0.0, 
+        100.0
     };
 
     char current_input;
@@ -79,17 +89,33 @@ Stats game_loop() {
 
         if (compare_letters(current_input, sentence[i])) {
             ++correct;
-            printf(ANSI_COLOR_GREEN);
+
+            #ifdef _WIN32
+                SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+            #else
+                printf(ANSI_COLOR_GREEN);
+            #endif
+
             printf("%c", current_input);
         } else {
             ++incorrect;
-            printf(ANSI_COLOR_RED);
+
+            #ifdef _WIN32
+                SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
+            #else 
+                printf(ANSI_COLOR_RED);
+            #endif
+
             printf("%c", current_input);
-            printf(ANSI_COLOR_RESET);
         }
 
         ++i;
-        printf(ANSI_COLOR_RESET);
+
+        #ifdef _WIN32
+            SetConsoleTextAttribute(hConsole, saved_attributes);
+        #else
+            printf(ANSI_COLOR_RESET);
+        #endif
     }
 
     current_stats.accuracy = (correct + incorrect == 0) ? 0.0 : (double) correct / ((double) (correct + incorrect)) * 100;
@@ -103,6 +129,17 @@ Stats game_loop() {
 }
 
 int main() {
+
+    #ifdef _WIN32
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+        WORD saved_attributes;
+
+        /* Save current attributes */
+        GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+        saved_attributes = consoleInfo.wAttributes;
+    #endif
+
     printf(
         "_______   _______ _____   _____ _____ _____ _____  \n"
         "|_   _\\ \\ / / ___ \\  ___| |_   _|  ___/  ___|_   _|\n"
@@ -114,6 +151,7 @@ int main() {
 
     printf("Press ENTER to begin typing :^)\n");
     char input = getche();
+
     if (input == '\n' || input == '\r') {
         Stats game_stats = game_loop();
         printf("\n\n=====\n");
@@ -122,10 +160,21 @@ int main() {
         printf("WPM: %.2f\n", game_stats.wpm);
 
         printf("Score: ");
-        printf(ANSI_COLOR_YELLOW);
+
+        #ifdef _WIN32
+            SetConsoleTextAttribute(hConsole, BACKGROUND_GREEN);
+        #else 
+            printf(ANSI_COLOR_YELLOW);
+        #endif
+
         printf("%.2f", game_stats.accuracy * game_stats.wpm);
 
-        printf(ANSI_COLOR_RESET);
+        #ifdef _WIN32
+            SetConsoleTextAttribute(hConsole, saved_attributes);
+        #else
+            printf(ANSI_COLOR_RESET);
+        #endif
+
         printf("\n=====\n\n\n");
     }
 
