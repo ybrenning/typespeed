@@ -5,6 +5,8 @@ You can finish the game by completing the text or stop at any time by pressing <
 
 At the end, the game lets you view basic statistics about your typing such as your speed in WPM (gross words per minute) and your accuracy percentage.
 
+![Demo](https://github.com/ybrenning/typespeed/blob/master/img/demo.gif)
+
 ## Instructions
 
 ### Prerequisites
@@ -30,3 +32,9 @@ $ cmake ..
 $ cmake --build . --config Release
 $ ./Release/typespeed
 ```
+
+## References
+
+[The Practice Text](https://thepracticetest.com/) \
+[Speed Typing Online](https://www.speedtypingonline.com/typing-equations) \
+[Network-Science](http://www.network-science.de/ascii/)
