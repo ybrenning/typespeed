@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <conio.h>
+// #include <conio.h>
+#include <curses.h>
 
 #include "typespeed.h"
 #include "sentences.h"
@@ -17,7 +18,7 @@ bool compare_letters(char input, char solution) {
 }
 
 char take_input() {
-    char c = _getch();
+    char c = getch();
     return c;
 }
 
@@ -197,7 +198,7 @@ int main() {
     );
 
     printf("Press ENTER to begin typing :^)\n");
-    char input = getche();
+    char input = getch();
 
     if (input == '\n' || input == '\r') {
         Stats game_stats = game_loop();
