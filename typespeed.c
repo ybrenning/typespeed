@@ -43,13 +43,9 @@ Stats game_loop() {
         CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
         WORD saved_attributes;
 
-        /* Save current attributes */
         GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
         saved_attributes = consoleInfo.wAttributes;
     #endif
-
-    bool flag = false;
-    clock_t start = clock();
 
     Stats current_stats = {
         0.0, 
@@ -58,12 +54,12 @@ Stats game_loop() {
 
     char current_input;
     char *sentence = select_sentence();
-    size_t correct = 0;
-    size_t incorrect = 0;
+
+    unsigned int correct = 0, incorrect = 0;
 
     printf("\n\n%s\n\n", sentence);
 
-    Sleep(1500);
+    Sleep(1000);
     printf("Starting... 3...");
     Sleep(1000);
     printf(" 2...");
@@ -71,13 +67,17 @@ Stats game_loop() {
     printf(" 1...\n\n");
     Sleep(1000);
 
+    clock_t start = clock();
     int i = 0;
     while (sentence[i] != '\0') {
         current_input = take_input();
+
+        // Handling enter (stop game)
         if (current_input == '\n' || current_input == '\r') {
             break;
         }
 
+        // Handling backspace
         if (current_input == 8) {
             if (i != 0) {
                 printf("\b");
@@ -109,13 +109,13 @@ Stats game_loop() {
             printf("%c", current_input);
         }
 
-        ++i;
-
         #ifdef _WIN32
             SetConsoleTextAttribute(hConsole, saved_attributes);
         #else
             printf(ANSI_COLOR_RESET);
         #endif
+
+        ++i;
     }
 
     current_stats.accuracy = (correct + incorrect == 0) ? 0.0 : (double) correct / ((double) (correct + incorrect)) * 100;
@@ -129,24 +129,24 @@ Stats game_loop() {
 }
 
 int main() {
-
     #ifdef _WIN32
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
         WORD saved_attributes;
 
-        /* Save current attributes */
         GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
         saved_attributes = consoleInfo.wAttributes;
     #endif
 
     printf(
+        "\n\n"
         "_______   _______ _____   _____ _____ _____ _____  \n"
         "|_   _\\ \\ / / ___ \\  ___| |_   _|  ___/  ___|_   _|\n"
         "  | |  \\ V /| |_/ / |__     | | | |__ \\ `--.  | | \n"  
         "  | |   \\ / |  __/|  __|    | | |  __| `--. \\ | | \n"  
         "  | |   | | | |   | |___    | | | |___/\\__/ / | | \n"
-        "  \\_/   \\_/ \\_|   \\____/    \\_/ \\____/\\____/  \\_/  \n\n\n"
+        "  \\_/   \\_/ \\_|   \\____/    \\_/ \\____/\\____/  \\_/"  
+        "\n\n\n"
     );
 
     printf("Press ENTER to begin typing :^)\n");
