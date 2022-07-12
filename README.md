@@ -11,7 +11,30 @@ At the end, the game lets you view basic statistics about your typing such as yo
 
 ### Prerequisites
 
-A standards-compliant C compiler as well as the standard C library and CMake.
+A standards-compliant C compiler as well as the standard C library and CMake. \
+An additional library necessary for cross-platform usage is `curses.h`.
+
+#### Linux
+
+```bash
+$ sudo apt-get install libncurses5-dev libncursesw5-dev
+```
+
+#### Mac OS
+
+```
+$ brew install ncurses
+```
+
+#### Windows
+
+* Open the MinGW Installation Manager
+* Install the following packages:
+    1. mingw32-libncurses (dll)
+    2. mingw32-libcurses (dev)
+    3. mingw32-libpdcurses (dll)
+    4. mingw32-libpdcurses (dev)
+
 
 ### Build
 
@@ -36,5 +59,6 @@ $ ./Release/typespeed
 ## References
 
 [The Practice Text](https://thepracticetest.com/) \
+[Agile Fingers](https://agilefingers.com/) \
 [Speed Typing Online](https://www.speedtypingonline.com/typing-equations) \
 [Network-Science](http://www.network-science.de/ascii/)
