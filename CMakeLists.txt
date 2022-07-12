@@ -5,4 +5,4 @@ set(CMAKE_C_STANDARD 11)
 
 include_directories(.)
 
-add_executable(typespeed typespeed.c sentences.h)
+add_executable(typespeed typespeed.c typespeed.h sentences.h)

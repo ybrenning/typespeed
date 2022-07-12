@@ -1,26 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <time.h>
 #include <conio.h>
-#include <string.h>
+
+#include "typespeed.h"
 #include "sentences.h"
-
-#define ARRAY_SIZE(arr) sizeof(arr) / sizeof(arr[0])
-
-#ifdef _WIN32
-    #include <windows.h>
-#else
-    #define ANSI_COLOR_RED     "\x1b[31m"
-    #define ANSI_COLOR_GREEN   "\x1b[32m"
-    #define ANSI_COLOR_YELLOW  "\x1b[33m"
-    #define ANSI_COLOR_RESET   "\x1b[0m"
-#endif
-
-typedef struct Stats {
-    double wpm;
-    double accuracy;
-} Stats;
 
 char *select_sentence() {
     srand(time(NULL));
@@ -35,6 +19,89 @@ bool compare_letters(char input, char solution) {
 char take_input() {
     char c = _getch();
     return c;
+}
+
+#ifdef _WIN32
+    void set_console_style_win32(HANDLE hConsole, Style style) {
+        switch(style.color) {
+            case(0):
+                if (style.background) {
+                    SetConsoleTextAttribute(hConsole, BACKGROUND_RED);
+                } else {
+                    SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
+                }
+
+                break;
+            case(1):
+                if (style.background) {
+                    SetConsoleTextAttribute(hConsole, BACKGROUND_GREEN);
+                } else {
+                    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+                }
+
+                break;
+            case(2):
+                if (style.background) {
+                    SetConsoleTextAttribute(hConsole, BACKGROUND_BLUE);
+                } else {
+                    SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE);
+                }
+
+                break;
+            default:
+                fprintf(stderr, "An error occurred while generating the console text style.\n");
+                exit(1);
+        }
+    }
+#else
+    void set_console_style_unix(Style style) {
+        switch(style.color) {
+            case(0):
+                printf(ANSI_COLOR_RED);
+                break;
+            case(1):
+                printf(ANSI_COLOR_GREEN);
+                break;
+            case(2):
+                printf(ANSI_COLOR_BLUE);
+                break;
+            case(3):
+                printf(ANSI_COLOR_YELLOW);
+                break;
+            default:
+                fprintf(stderr, "An error occurred while generating the console text style.\n");
+                exit(1);
+        }
+    }
+#endif
+
+void set_console_style(Style style) {
+    #ifdef _WIN32
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        set_console_style_win32(hConsole, style);
+    #else 
+        set_console_style_unix(style);
+    #endif
+}
+
+void countdown() {
+    #ifdef _WIN32
+        Sleep(1000);
+        printf("Starting... 3...");
+        Sleep(1000);
+        printf(" 2...");
+        Sleep(1000);
+        printf(" 1...\n\n");
+        Sleep(1000);
+    #else
+        sleep(1);
+        printf("Starting... 3...");
+        sleep(1);
+        printf(" 2...");
+        sleep(1);
+        printf(" 1...\n\n");
+        sleep(1);
+    #endif
 }
 
 Stats game_loop() {
@@ -59,14 +126,6 @@ Stats game_loop() {
 
     printf("\n\n%s\n\n", sentence);
 
-    Sleep(1000);
-    printf("Starting... 3...");
-    Sleep(1000);
-    printf(" 2...");
-    Sleep(1000);
-    printf(" 1...\n\n");
-    Sleep(1000);
-
     clock_t start = clock();
     int i = 0;
     while (sentence[i] != '\0') {
@@ -89,23 +148,11 @@ Stats game_loop() {
 
         if (compare_letters(current_input, sentence[i])) {
             ++correct;
-
-            #ifdef _WIN32
-                SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
-            #else
-                printf(ANSI_COLOR_GREEN);
-            #endif
-
+            set_console_style((Style){green, false});
             printf("%c", current_input);
         } else {
             ++incorrect;
-
-            #ifdef _WIN32
-                SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
-            #else 
-                printf(ANSI_COLOR_RED);
-            #endif
-
+            set_console_style((Style){red, false});
             printf("%c", current_input);
         }
 
@@ -160,13 +207,11 @@ int main() {
         printf("WPM: %.2f\n", game_stats.wpm);
 
         printf("Score: ");
-
         #ifdef _WIN32
-            SetConsoleTextAttribute(hConsole, BACKGROUND_GREEN);
+            set_console_style((Style){green, true});
         #else 
-            printf(ANSI_COLOR_YELLOW);
+            set_console_style((Style){yellow, false});
         #endif
-
         printf("%.2f", game_stats.accuracy * game_stats.wpm);
 
         #ifdef _WIN32
