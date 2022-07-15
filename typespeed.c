@@ -77,14 +77,18 @@ char take_input() {
 
 void set_console_style(Style style) {
     #ifdef _WIN32
+        // hConsole variable is needed for Windows console styling
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         set_console_style_win32(hConsole, style);
     #else 
+        // For Unix console coloring, simply use ANSI codes defined above
         set_console_style_unix(style);
     #endif
 }
 
 void countdown() {
+    // Sleep() function is defined differently
+    // between Windows (windows.h) and Unix (unistd.h)
     #ifdef _WIN32
         Sleep(1000);
         printf("Starting... 3...");
@@ -106,6 +110,7 @@ void countdown() {
 
 Stats game_loop() {
     #ifdef _WIN32
+        // Save default Windows console attributes
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
         WORD saved_attributes;
@@ -114,19 +119,18 @@ Stats game_loop() {
         saved_attributes = consoleInfo.wAttributes;
     #endif
 
-    Stats current_stats = {
-        0.0, 
-        100.0
-    };
-
     char current_input;
     char *sentence = select_sentence();
 
+    // Initialize stats
+    Stats current_stats = {0.0, 100.0};
     unsigned int correct = 0, incorrect = 0;
 
     printf("\n\n%s\n\n", sentence);
 
+    // Start "timer"
     clock_t start = clock();
+
     int i = 0;
     while (sentence[i] != '\0') {
         current_input = take_input();
@@ -146,6 +150,7 @@ Stats game_loop() {
             continue;
         }
 
+        // Check whether user input was correct
         if (compare_letters(current_input, sentence[i])) {
             ++correct;
             set_console_style((Style){green, false});
@@ -156,6 +161,7 @@ Stats game_loop() {
             printf("%c", current_input);
         }
 
+        // Reset console style to default
         #ifdef _WIN32
             SetConsoleTextAttribute(hConsole, saved_attributes);
         #else
@@ -165,11 +171,15 @@ Stats game_loop() {
         ++i;
     }
 
-    current_stats.accuracy = (correct + incorrect == 0) ? 0.0 : (double) correct / ((double) (correct + incorrect)) * 100;
+    // Calculate accuracy, handle case for dividing by 0
+    current_stats.accuracy = (correct + incorrect == 0) ? 0.0 \
+                            : (double) correct / ((double) (correct + incorrect)) * 100;
 
+    // Stop timer and calculate time taken to type in minutes
     clock_t end = clock();
     double minutes = ((double) (end - start) / CLOCKS_PER_SEC) / 60;
 
+    // Calculate (Gross) Words Per Minute
     current_stats.wpm = ((double) (correct + incorrect) / 5) / minutes;
 
     return current_stats;
