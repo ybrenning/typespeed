@@ -87,7 +87,7 @@ bool compare_chars(char input, char solution);
 
 #ifdef _WIN32
 /**
- * @brief Implementation of `getch()` function from the unix conio library.
+ * @brief Implementation of `getch()` function from the unix curses library.
  * 
  * @return TCHAR Single letter typed into console by the user.
  */

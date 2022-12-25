@@ -33,7 +33,7 @@ bool compare_chars(char input, char solution) {
         return c;
     }
 #else
-    #include <conio.h>
+    #include <curses.h>
 #endif
 
 #ifdef _WIN32
