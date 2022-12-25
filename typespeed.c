@@ -140,6 +140,8 @@ Stats game_loop() {
     Stats current_stats = {0.0, 100.0};
     unsigned int correct = 0, incorrect = 0;
 
+    countdown();
+
     printf("\n\n%s\n\n", sentence);
 
     // Start "timer"
