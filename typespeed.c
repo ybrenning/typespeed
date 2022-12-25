@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <curses.h>
 
 #include "typespeed.h"
 #include "sentences.h"
@@ -12,14 +11,30 @@ char *select_sentence() {
     return (sentences[rand() % total]);
 }
 
-bool compare_letters(char input, char solution) {
+bool compare_chars(char input, char solution) {
     return (input == solution ? true : false);
 }
 
-char take_input() {
-    char c = getch();
-    return c;
-}
+#ifdef _WIN32
+    TCHAR getch() {
+        DWORD mode, cc;
+        HANDLE h = GetStdHandle(STD_INPUT_HANDLE);
+
+        if (h == NULL) {
+            return 0;
+        }
+
+        GetConsoleMode(h, &mode);
+        SetConsoleMode(h, mode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT));
+
+        TCHAR c = 0;
+        ReadConsole(h, &c, 1, &cc, NULL);
+        SetConsoleMode(h, mode);
+        return c;
+    }
+#else
+    #include <conio.h>
+#endif
 
 #ifdef _WIN32
     void set_console_style_win32(HANDLE hConsole, Style style) {
@@ -87,8 +102,7 @@ void set_console_style(Style style) {
 }
 
 void countdown() {
-    // Sleep() function is defined differently
-    // between Windows (windows.h) and Unix (unistd.h)
+    // Sleep() function is defined differently between Windows/Unix
     #ifdef _WIN32
         Sleep(1000);
         printf("Starting... 3...");
@@ -133,7 +147,7 @@ Stats game_loop() {
 
     int i = 0;
     while (sentence[i] != '\0') {
-        current_input = take_input();
+        current_input = getch();
 
         // Handling enter (stop game)
         if (current_input == '\n' || current_input == '\r') {
@@ -151,7 +165,7 @@ Stats game_loop() {
         }
 
         // Check whether user input was correct
-        if (compare_letters(current_input, sentence[i])) {
+        if (compare_chars(current_input, sentence[i])) {
             ++correct;
             set_console_style((Style){green, false});
             printf("%c", current_input);

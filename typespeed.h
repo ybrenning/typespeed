@@ -2,7 +2,7 @@
  * @file typespeed.h
  * @author Yannick Brenning
  * @brief Simple console typing practice game 
- * @version 0.1
+ * @version 0.2
  * @date 2022-07-15
  * 
  * @copyright Copyright (c) 2022
@@ -54,7 +54,7 @@ typedef struct Style {
     /**
      * @brief Contains the color of the text.
      * 
-     * Four different colors are possible as of now,
+     * Four different colors are possible as of now --
      * in the case of the Windows implementation
      * the color yellow is not yet supported. 
      */
@@ -64,7 +64,7 @@ typedef struct Style {
         blue,
         yellow
     } color;
-    bool background; /**< Explains whether background is filled in or not. */
+    bool background; /**< Denotes whether background is filled in or not. */
 } Style;
 
 /**
@@ -75,24 +75,24 @@ typedef struct Style {
 char *select_sentence();
 
 /**
- * @brief Compares one letter of user input and letter of solution.
+ * @brief Compares one char of user input to the char of the solution.
  * 
  * @param input Single letter of user input.
  * @param solution Single letter of the sentence to be typed.
+ * 
  * @return true Letters are the same.
  * @return false Letters are not the same.
  */
-bool compare_letters(char input, char solution);
+bool compare_chars(char input, char solution);
 
+#ifdef _WIN32
 /**
- * @brief Gets console input from the user.
+ * @brief Implementation of `getch()` function from the unix conio library.
  * 
- * Uses <tt> getch() </tt> so that the input is taken
- * instantly without need for pressing <kbd> ENTER </kbd>.
- * 
- * @return char Letter input by the user.
+ * @return TCHAR Single letter typed into console by the user.
  */
-char take_input();
+TCHAR getch();
+#endif
 
 #ifdef _WIN32
     void set_console_style_win32(HANDLE hConsole, Style style);
