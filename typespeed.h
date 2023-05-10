@@ -2,8 +2,6 @@
  * @file typespeed.h
  * @author Yannick Brenning
  * @brief Simple console typing practice game 
- * @version 0.2
- * @date 2022-07-15
  * 
  * @copyright Copyright (c) 2022
  * 
@@ -70,7 +68,7 @@ typedef struct Style {
 /**
  * @brief Selects a sentence at random from <tt> sentences.h </tt>.
  * 
- * @return char* String containing the sentence to be typed.
+ * @return String containing the sentence to be typed.
  */
 char *select_sentence();
 
@@ -80,8 +78,7 @@ char *select_sentence();
  * @param input Single letter of user input.
  * @param solution Single letter of the sentence to be typed.
  * 
- * @return true Letters are the same.
- * @return false Letters are not the same.
+ * @return true if letters are the same, false otherwise
  */
 bool compare_chars(char input, char solution);
 
@@ -89,7 +86,7 @@ bool compare_chars(char input, char solution);
 /**
  * @brief Implementation of `getch()` function from the unix curses library.
  * 
- * @return TCHAR Single letter typed into console by the user.
+ * @return Single letter typed into console by the user.
  */
 TCHAR getch();
 #endif
@@ -125,7 +122,7 @@ void countdown();
  * At the end, stop the timer and use counted values to
  * calculate the user's stats using the #Stats struct.
  * 
- * @return Stats User's WPM and accuracy for the current game
+ * @return User's WPM and accuracy for the current game
  */
 Stats game_loop();
 
