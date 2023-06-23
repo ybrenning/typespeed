@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#ifndef _WIN32
+#include <unistd.h>
+#define NANO_PER_SEC 1000000000.0
+#endif
 
 #include "typespeed.h"
 #include "sentences.h"
@@ -190,8 +194,14 @@ Stats game_loop() {
 
     printf("\n\n%s\n\n", sentence);
 
+#ifdef _WIN32
     // Start "timer"
     clock_t start = clock();
+#else 
+    struct timespec start, end;
+    double start_sec, end_sec, elapsed_sec;
+    clock_gettime(CLOCK_REALTIME, &start);
+#endif
 
     int i = 0;
     while (sentence[i] != '\0') {
@@ -237,11 +247,18 @@ Stats game_loop() {
     current_stats.accuracy = (correct + incorrect == 0) ? 0.0 \
         : (double) correct / ((double) (correct + incorrect)) * 100;
 
+#ifdef _WIN32
     // Stop timer and calculate time taken to type in minutes
     clock_t end = clock();
-    double minutes = ((double) (end - start) / CLOCKS_PER_SEC) / 60;
-
-    printf("correct= %d, incorrect= %d, minutes=%f\n", correct, incorrect, minutes);
+    double seconds = 2000 * ((double) (end - start) / (double) CLOCKS_PER_SEC);
+    double minutes = seconds / 60;
+#else
+    clock_gettime(CLOCK_REALTIME, &end);
+    start_sec = start.tv_sec + start.tv_nsec / NANO_PER_SEC;
+    end_sec = end.tv_sec + end.tv_nsec / NANO_PER_SEC;
+    elapsed_sec = end_sec - start_sec;
+    double minutes = elapsed_sec / 60;
+#endif
     // Calculate (Gross) Words Per Minute
     current_stats.wpm = ((double) (correct + incorrect) / 5) / minutes;
 
@@ -252,10 +269,7 @@ int main() {
 #ifdef _WIN32
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
-    WORD saved_attributes;
-
-    GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
-    saved_attributes = consoleInfo.wAttributes;
+    WORD saved_attributes; GetConsoleScreenBufferInfo(hConsole, &consoleInfo); saved_attributes = consoleInfo.wAttributes;
 #endif
 
     printf(
