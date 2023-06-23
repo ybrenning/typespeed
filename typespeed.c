@@ -1,26 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#ifndef _WIN32
-#include <unistd.h>
-#define NANO_PER_SEC 1000000000.0
-#endif
 
 #include "typespeed.h"
 #include "sentences.h"
 
-char *select_sentence() {
+char *select_sentence()
+{
     srand(time(NULL));
     size_t total = ARRAY_SIZE(sentences);
     return (sentences[rand() % total]);
 }
 
-bool compare_chars(char input, char solution) {
+bool compare_chars(char input, char solution)
+{
     return (input == solution ? true : false);
 }
 
 #ifdef _WIN32
-TCHAR getch() {
+TCHAR getch()
+{
     DWORD mode, cc;
     HANDLE h = GetStdHandle(STD_INPUT_HANDLE);
 
@@ -42,7 +41,7 @@ TCHAR getch() {
 static struct termios old, current;
 
 /* Initialize new terminal i/o settings */
-void initTermios(int echo) 
+void initTermios(int echo)
 {
     tcgetattr(0, &old); /* grab old terminal i/o settings */
     current = old; /* make new settings same as old settings */
@@ -56,14 +55,14 @@ void initTermios(int echo)
 }
 
 /* Restore old terminal i/o settings */
-void resetTermios(void) 
+void resetTermios(void)
 {
     tcsetattr(0, TCSANOW, &old);
 }
 
 
 /* Read 1 character - echo defines echo mode */
-char getch_(int echo) 
+char getch_(int echo)
 {
     char ch;
     initTermios(echo);
@@ -87,7 +86,8 @@ char getche(void)
 #endif
 
 #ifdef _WIN32
-void set_console_style_win32(HANDLE hConsole, Style style) {
+void set_console_style_win32(HANDLE hConsole, Style style)
+{
     switch(style.color) {
         case(0):
             if (style.background) {
@@ -119,7 +119,8 @@ void set_console_style_win32(HANDLE hConsole, Style style) {
     }
 }
 #else
-void set_console_style_unix(Style style) {
+void set_console_style_unix(Style style)
+{
     switch(style.color) {
         case(0):
             printf(ANSI_COLOR_RED);
@@ -140,7 +141,8 @@ void set_console_style_unix(Style style) {
 }
 #endif
 
-void set_console_style(Style style) {
+void set_console_style(Style style)
+{
 #ifdef _WIN32
     // hConsole variable is needed for Windows console styling
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -151,7 +153,8 @@ void set_console_style(Style style) {
 #endif
 }
 
-void countdown() {
+void countdown()
+{
     // Sleep() function is defined differently between Windows/Unix
 #ifdef _WIN32
     Sleep(1000);
@@ -172,7 +175,8 @@ void countdown() {
 #endif
 }
 
-Stats game_loop() {
+Stats game_loop()
+{
 #ifdef _WIN32
     // Save default Windows console attributes
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -182,7 +186,6 @@ Stats game_loop() {
     GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
     saved_attributes = consoleInfo.wAttributes;
 #endif
-
     char current_input;
     char *sentence = select_sentence();
 
@@ -239,7 +242,6 @@ Stats game_loop() {
 #else
         printf(ANSI_COLOR_RESET);
 #endif
-
         ++i;
     }
 
@@ -265,7 +267,8 @@ Stats game_loop() {
     return current_stats;
 }
 
-int main() {
+int main()
+{
 #ifdef _WIN32
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
@@ -306,7 +309,6 @@ int main() {
 #else
         printf(ANSI_COLOR_RESET);
 #endif
-
         printf("\n=====\n\n\n");
     }
 

@@ -3,7 +3,7 @@
  * @author Yannick Brenning
  * @brief Simple console typing practice game 
  * 
- * @copyright Copyright (c) 2022
+ * @copyright Copyright (c) 2023
  * 
  */
 
@@ -13,19 +13,20 @@
 #include <stdbool.h>
 
 #ifdef _WIN32
-    #include <windows.h>
+#include <windows.h>
 #else
-    #include <unistd.h>
+#include <unistd.h>
 #endif
 
 #define ARRAY_SIZE(arr) sizeof(arr) / sizeof(arr[0])
 
 #ifndef _WIN32
-    #define ANSI_COLOR_RED     "\x1b[31m"
-    #define ANSI_COLOR_GREEN   "\x1b[32m"
-    #define ANSI_COLOR_BLUE    "\x1b[34m"
-    #define ANSI_COLOR_YELLOW  "\x1b[33m"
-    #define ANSI_COLOR_RESET   "\x1b[0m"
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+#define NANO_PER_SEC 1000000000.0
 #endif
 
 /**
@@ -92,9 +93,9 @@ TCHAR getch();
 #endif
 
 #ifdef _WIN32
-    void set_console_style_win32(HANDLE hConsole, Style style);
+void set_console_style_win32(HANDLE hConsole, Style style);
 #else
-    void set_console_style_unix(Style style);
+void set_console_style_unix(Style style);
 #endif
 
 /**
