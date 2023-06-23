@@ -16,122 +16,168 @@ bool compare_chars(char input, char solution) {
 }
 
 #ifdef _WIN32
-    TCHAR getch() {
-        DWORD mode, cc;
-        HANDLE h = GetStdHandle(STD_INPUT_HANDLE);
+TCHAR getch() {
+    DWORD mode, cc;
+    HANDLE h = GetStdHandle(STD_INPUT_HANDLE);
 
-        if (h == NULL) {
-            return 0;
-        }
-
-        GetConsoleMode(h, &mode);
-        SetConsoleMode(h, mode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT));
-
-        TCHAR c = 0;
-        ReadConsole(h, &c, 1, &cc, NULL);
-        SetConsoleMode(h, mode);
-        return c;
+    if (h == NULL) {
+        return 0;
     }
+
+    GetConsoleMode(h, &mode);
+    SetConsoleMode(h, mode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT));
+
+    TCHAR c = 0;
+    ReadConsole(h, &c, 1, &cc, NULL);
+    SetConsoleMode(h, mode);
+    return c;
+}
 #else
-    #include <curses.h>
+#include <termios.h>
+
+static struct termios old, current;
+
+/* Initialize new terminal i/o settings */
+void initTermios(int echo) 
+{
+    tcgetattr(0, &old); /* grab old terminal i/o settings */
+    current = old; /* make new settings same as old settings */
+    current.c_lflag &= ~ICANON; /* disable buffered i/o */
+    if (echo) {
+        current.c_lflag |= ECHO; /* set echo mode */
+    } else {
+        current.c_lflag &= ~ECHO; /* set no echo mode */
+    }
+    tcsetattr(0, TCSANOW, &current); /* use these new terminal i/o settings now */
+}
+
+/* Restore old terminal i/o settings */
+void resetTermios(void) 
+{
+    tcsetattr(0, TCSANOW, &old);
+}
+
+
+/* Read 1 character - echo defines echo mode */
+char getch_(int echo) 
+{
+    char ch;
+    initTermios(echo);
+    ch = getchar();
+    resetTermios();
+    return ch;
+}
+
+/* Read 1 character without echo */
+char getch(void) 
+{
+    return getch_(0);
+}
+
+/* Read 1 character with echo */
+char getche(void) 
+{
+    return getch_(1);
+}
+
 #endif
 
 #ifdef _WIN32
-    void set_console_style_win32(HANDLE hConsole, Style style) {
-        switch(style.color) {
-            case(0):
-                if (style.background) {
-                    SetConsoleTextAttribute(hConsole, BACKGROUND_RED);
-                } else {
-                    SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
-                }
+void set_console_style_win32(HANDLE hConsole, Style style) {
+    switch(style.color) {
+        case(0):
+            if (style.background) {
+                SetConsoleTextAttribute(hConsole, BACKGROUND_RED);
+            } else {
+                SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
+            }
 
-                break;
-            case(1):
-                if (style.background) {
-                    SetConsoleTextAttribute(hConsole, BACKGROUND_GREEN);
-                } else {
-                    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
-                }
+            break;
+        case(1):
+            if (style.background) {
+                SetConsoleTextAttribute(hConsole, BACKGROUND_GREEN);
+            } else {
+                SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+            }
 
-                break;
-            case(2):
-                if (style.background) {
-                    SetConsoleTextAttribute(hConsole, BACKGROUND_BLUE);
-                } else {
-                    SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE);
-                }
+            break;
+        case(2):
+            if (style.background) {
+                SetConsoleTextAttribute(hConsole, BACKGROUND_BLUE);
+            } else {
+                SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE);
+            }
 
-                break;
-            default:
-                fprintf(stderr, "An error occurred while generating the console text style.\n");
-                exit(1);
-        }
+            break;
+        default:
+            fprintf(stderr, "An error occurred while generating the console text style.\n");
+            exit(1);
     }
+}
 #else
-    void set_console_style_unix(Style style) {
-        switch(style.color) {
-            case(0):
-                printf(ANSI_COLOR_RED);
-                break;
-            case(1):
-                printf(ANSI_COLOR_GREEN);
-                break;
-            case(2):
-                printf(ANSI_COLOR_BLUE);
-                break;
-            case(3):
-                printf(ANSI_COLOR_YELLOW);
-                break;
-            default:
-                fprintf(stderr, "An error occurred while generating the console text style.\n");
-                exit(1);
-        }
+void set_console_style_unix(Style style) {
+    switch(style.color) {
+        case(0):
+            printf(ANSI_COLOR_RED);
+            break;
+        case(1):
+            printf(ANSI_COLOR_GREEN);
+            break;
+        case(2):
+            printf(ANSI_COLOR_BLUE);
+            break;
+        case(3):
+            printf(ANSI_COLOR_YELLOW);
+            break;
+        default:
+            fprintf(stderr, "An error occurred while generating the console text style.\n");
+            exit(1);
     }
+}
 #endif
 
 void set_console_style(Style style) {
-    #ifdef _WIN32
-        // hConsole variable is needed for Windows console styling
-        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        set_console_style_win32(hConsole, style);
-    #else 
-        // For Unix console coloring, simply use ANSI codes defined above
-        set_console_style_unix(style);
-    #endif
+#ifdef _WIN32
+    // hConsole variable is needed for Windows console styling
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    set_console_style_win32(hConsole, style);
+#else 
+    // For Unix console coloring, simply use ANSI codes defined above
+    set_console_style_unix(style);
+#endif
 }
 
 void countdown() {
     // Sleep() function is defined differently between Windows/Unix
-    #ifdef _WIN32
-        Sleep(1000);
-        printf("Starting... 3...");
-        Sleep(1000);
-        printf(" 2...");
-        Sleep(1000);
-        printf(" 1...\n\n");
-        Sleep(1000);
-    #else
-        sleep(1);
-        printf("Starting... 3...");
-        sleep(1);
-        printf(" 2...");
-        sleep(1);
-        printf(" 1...\n\n");
-        sleep(1);
-    #endif
+#ifdef _WIN32
+    Sleep(1000);
+    printf("Starting... 3...");
+    Sleep(1000);
+    printf(" 2...");
+    Sleep(1000);
+    printf(" 1...\n\n");
+    Sleep(1000);
+#else
+    sleep(1);
+    printf("Starting... 3...");
+    sleep(1);
+    printf(" 2...");
+    sleep(1);
+    printf(" 1...\n\n");
+    sleep(1);
+#endif
 }
 
 Stats game_loop() {
-    #ifdef _WIN32
-        // Save default Windows console attributes
-        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
-        WORD saved_attributes;
+#ifdef _WIN32
+    // Save default Windows console attributes
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+    WORD saved_attributes;
 
-        GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
-        saved_attributes = consoleInfo.wAttributes;
-    #endif
+    GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+    saved_attributes = consoleInfo.wAttributes;
+#endif
 
     char current_input;
     char *sentence = select_sentence();
@@ -157,7 +203,7 @@ Stats game_loop() {
         }
 
         // Handling backspace
-        if (current_input == 8) {
+        if (current_input == 127 || current_input == 8) {
             if (i != 0) {
                 printf("\b");
                 --i;
@@ -178,23 +224,24 @@ Stats game_loop() {
         }
 
         // Reset console style to default
-        #ifdef _WIN32
-            SetConsoleTextAttribute(hConsole, saved_attributes);
-        #else
-            printf(ANSI_COLOR_RESET);
-        #endif
+#ifdef _WIN32
+        SetConsoleTextAttribute(hConsole, saved_attributes);
+#else
+        printf(ANSI_COLOR_RESET);
+#endif
 
         ++i;
     }
 
     // Calculate accuracy, handle case for dividing by 0
     current_stats.accuracy = (correct + incorrect == 0) ? 0.0 \
-                            : (double) correct / ((double) (correct + incorrect)) * 100;
+        : (double) correct / ((double) (correct + incorrect)) * 100;
 
     // Stop timer and calculate time taken to type in minutes
     clock_t end = clock();
     double minutes = ((double) (end - start) / CLOCKS_PER_SEC) / 60;
 
+    printf("correct= %d, incorrect= %d, minutes=%f\n", correct, incorrect, minutes);
     // Calculate (Gross) Words Per Minute
     current_stats.wpm = ((double) (correct + incorrect) / 5) / minutes;
 
@@ -202,14 +249,14 @@ Stats game_loop() {
 }
 
 int main() {
-    #ifdef _WIN32
-        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
-        WORD saved_attributes;
+#ifdef _WIN32
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+    WORD saved_attributes;
 
-        GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
-        saved_attributes = consoleInfo.wAttributes;
-    #endif
+    GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+    saved_attributes = consoleInfo.wAttributes;
+#endif
 
     printf(
         "\n\n"
@@ -233,18 +280,18 @@ int main() {
         printf("WPM: %.2f\n", game_stats.wpm);
 
         printf("Score: ");
-        #ifdef _WIN32
-            set_console_style((Style){green, true});
-        #else 
-            set_console_style((Style){yellow, false});
-        #endif
+#ifdef _WIN32
+        set_console_style((Style){green, true});
+#else 
+        set_console_style((Style){yellow, false});
+#endif
         printf("%.2f", game_stats.accuracy * game_stats.wpm);
 
-        #ifdef _WIN32
-            SetConsoleTextAttribute(hConsole, saved_attributes);
-        #else
-            printf(ANSI_COLOR_RESET);
-        #endif
+#ifdef _WIN32
+        SetConsoleTextAttribute(hConsole, saved_attributes);
+#else
+        printf(ANSI_COLOR_RESET);
+#endif
 
         printf("\n=====\n\n\n");
     }
