@@ -267,7 +267,7 @@ Stats game_loop()
     return current_stats;
 }
 
-int main()
+int main(void)
 {
 #ifdef _WIN32
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
