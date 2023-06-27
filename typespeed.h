@@ -95,7 +95,7 @@ TCHAR getch(void);
  * @brief Initialize new terminal i/o settings.
  *
  */
-void initTermios(void);
+void initTermios(int echo);
 
 /**
  * @brief Restore old terminal i/o settings.
@@ -116,14 +116,14 @@ char getch_(int echo);
  * 
  * @return Single letter typed into console by the user.
  */
-char getch(void) 
+char getch(void); 
 
 /**
  * @brief Read 1 character with echo.
  *
  * @return Single letter typed into console by the user.
  */
-char getche(void) 
+char getche(void);
 #endif
 
 #ifdef _WIN32
