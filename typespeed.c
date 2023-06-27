@@ -201,7 +201,6 @@ Stats game_loop(void)
     clock_t start = clock();
 #else 
     struct timespec start, end;
-    double start_sec, end_sec, elapsed_sec;
     clock_gettime(CLOCK_REALTIME, &start);
 #endif
 
@@ -251,16 +250,17 @@ Stats game_loop(void)
 // Stop timer and calculate time taken to type in minutes
 #ifdef _WIN32
     clock_t end = clock();
-    double minutes = ((double) (end - start) / CLOCKS_PER_SEC) / 60;
+    double elapsed_min = ((double) (end - start) / CLOCKS_PER_SEC) / 60;
 #else
     clock_gettime(CLOCK_REALTIME, &end);
-    start_sec = start.tv_sec + start.tv_nsec / NANO_PER_SEC;
-    end_sec = end.tv_sec + end.tv_nsec / NANO_PER_SEC;
-    elapsed_sec = end_sec - start_sec;
-    double minutes = elapsed_sec / 60;
+    double start_sec = start.tv_sec + start.tv_nsec / NANO_PER_SEC;
+    double end_sec = end.tv_sec + end.tv_nsec / NANO_PER_SEC;
+
+    double elapsed_sec = end_sec - start_sec;
+    double elapsed_min = elapsed_sec / 60;
 #endif
     // Calculate (Gross) Words Per Minute
-    current_stats.wpm = ((double) (correct + incorrect) / 5) / minutes;
+    current_stats.wpm = ((double) (correct + incorrect) / 5) / elapsed_min;
 
     return current_stats;
 }
