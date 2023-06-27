@@ -5,7 +5,7 @@
 #include "typespeed.h"
 #include "sentences.h"
 
-char *select_sentence()
+char *select_sentence(void)
 {
     srand(time(NULL));
     size_t total = ARRAY_SIZE(sentences);
@@ -18,7 +18,7 @@ bool compare_chars(char input, char solution)
 }
 
 #ifdef _WIN32
-TCHAR getch()
+TCHAR getch(void)
 {
     DWORD mode, cc;
     HANDLE h = GetStdHandle(STD_INPUT_HANDLE);

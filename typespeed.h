@@ -71,7 +71,7 @@ typedef struct Style {
  * 
  * @return String containing the sentence to be typed.
  */
-char *select_sentence();
+char *select_sentence(void);
 
 /**
  * @brief Compares one char of user input to the char of the solution.
@@ -89,13 +89,13 @@ bool compare_chars(char input, char solution);
  * 
  * @return Single letter typed into console by the user.
  */
-TCHAR getch();
+TCHAR getch(void);
 #else
 /**
  * @brief Initialize new terminal i/o settings.
  *
  */
-void initTermios(int echo);
+void initTermios(void);
 
 /**
  * @brief Restore old terminal i/o settings.
@@ -143,7 +143,7 @@ void set_console_style(Style style);
 /**
  * @brief Counts down until beginning of the typing session.
  */
-void countdown();
+void countdown(void);
 
 /**
  * @brief Executes the main game loop.
@@ -159,6 +159,6 @@ void countdown();
  * 
  * @return User's WPM and accuracy for the current game
  */
-Stats game_loop();
+Stats game_loop(void);
 
 #endif // TYPESPEED_H
