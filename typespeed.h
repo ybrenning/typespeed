@@ -90,6 +90,40 @@ bool compare_chars(char input, char solution);
  * @return Single letter typed into console by the user.
  */
 TCHAR getch();
+#else
+/**
+ * @brief Initialize new terminal i/o settings.
+ *
+ */
+void initTermios(int echo);
+
+/**
+ * @brief Restore old terminal i/o settings.
+ *
+ */
+void resetTermios(void);
+
+/**
+ * @brief Read 1 character - echo defines echo mode
+ *
+ * @param echo whether to write the user input to console.
+ * @return Single letter typed into console by the user.
+ */
+char getch_(int echo);
+
+/**
+ * @brief Read 1 character without echo.
+ * 
+ * @return Single letter typed into console by the user.
+ */
+char getch(void) 
+
+/**
+ * @brief Read 1 character with echo.
+ *
+ * @return Single letter typed into console by the user.
+ */
+char getche(void) 
 #endif
 
 #ifdef _WIN32
@@ -107,7 +141,7 @@ void set_console_style_unix(Style style);
 void set_console_style(Style style);
 
 /**
- * @brief Counts down until beginning of the typing session
+ * @brief Counts down until beginning of the typing session.
  */
 void countdown();
 

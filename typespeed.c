@@ -40,28 +40,30 @@ TCHAR getch()
 
 static struct termios old, current;
 
-/* Initialize new terminal i/o settings */
 void initTermios(int echo)
 {
-    tcgetattr(0, &old); /* grab old terminal i/o settings */
-    current = old; /* make new settings same as old settings */
-    current.c_lflag &= ~ICANON; /* disable buffered i/o */
+    // Grab old terminal i/o settings
+    tcgetattr(0, &old); 
+    // Make new settings same as old settings
+    current = old; 
+    // Disable buffered i/o
+    current.c_lflag &= ~ICANON; 
+
     if (echo) {
-        current.c_lflag |= ECHO; /* set echo mode */
+        current.c_lflag |= ECHO; 
     } else {
-        current.c_lflag &= ~ECHO; /* set no echo mode */
+        current.c_lflag &= ~ECHO;
     }
-    tcsetattr(0, TCSANOW, &current); /* use these new terminal i/o settings now */
+
+    // Use these new terminal i/o settings now
+    tcsetattr(0, TCSANOW, &current); 
 }
 
-/* Restore old terminal i/o settings */
 void resetTermios(void)
 {
     tcsetattr(0, TCSANOW, &old);
 }
 
-
-/* Read 1 character - echo defines echo mode */
 char getch_(int echo)
 {
     char ch;
@@ -71,18 +73,15 @@ char getch_(int echo)
     return ch;
 }
 
-/* Read 1 character without echo */
 char getch(void) 
 {
     return getch_(0);
 }
 
-/* Read 1 character with echo */
 char getche(void) 
 {
     return getch_(1);
 }
-
 #endif
 
 #ifdef _WIN32
@@ -153,7 +152,7 @@ void set_console_style(Style style)
 #endif
 }
 
-void countdown()
+void countdown(void)
 {
     // Sleep() function is defined differently between Windows/Unix
 #ifdef _WIN32
@@ -175,7 +174,7 @@ void countdown()
 #endif
 }
 
-Stats game_loop()
+Stats game_loop(void)
 {
 #ifdef _WIN32
     // Save default Windows console attributes
