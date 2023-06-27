@@ -248,11 +248,10 @@ Stats game_loop(void)
     current_stats.accuracy = (correct + incorrect == 0) ? 0.0 \
         : (double) correct / ((double) (correct + incorrect)) * 100;
 
+// Stop timer and calculate time taken to type in minutes
 #ifdef _WIN32
-    // Stop timer and calculate time taken to type in minutes
     clock_t end = clock();
-    double seconds = 2000 * ((double) (end - start) / (double) CLOCKS_PER_SEC);
-    double minutes = seconds / 60;
+    double minutes = ((double) (end - start) / CLOCKS_PER_SEC) / 60;
 #else
     clock_gettime(CLOCK_REALTIME, &end);
     start_sec = start.tv_sec + start.tv_nsec / NANO_PER_SEC;
